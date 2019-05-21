@@ -1,0 +1,61 @@
+# Installer GitLab en utilisant docker-compose
+# Installer Docker Compose
+# Créez un docker-compose.yml
+
+
+web:
+   image: 'gitlab/gitlab-ce:latest'
+   restart: always
+   hostname: 'gitlab.example.com'
+   environment:
+     GITLAB_OMNIBUS_CONFIG: |
+       external_url 'https://gitlab.example.com'
+       # Add any other gitlab.rb configuration here, each on its own line
+   ports:
+     - '80:80'
+     - '443:443'
+     - '22:22'
+   volumes:
+     - '/srv/gitlab/config:/etc/gitlab'
+     - '/srv/gitlab/logs:/var/log/gitlab'
+     - '/srv/gitlab/data:/var/opt/gitlab'
+     
+# Assurez-vous que vous êtes dans le même répertoire que docker-compose.yml et docker-compose up -d lancez GitLab
+# Si vous avez installé GitLab à l'aide de docker-compose , tout ce que vous avez à faire est de lancer docker-compose 
+pull et docker-compose up -dde télécharger une nouvelle version et de mettre à niveau votre instance GitLab
+
+# docker-compose pullet docker-compose up -d
+
+# Déployer GitLab dans un essaim Docker
+
+version: "3.6"
+ services:
+   gitlab:
+     image: gitlab/gitlab-ce:latest
+     ports:
+       - "22:22"
+       - "80:80"
+       - "443:443"
+     volumes:
+       - /srv/gitlab/data:/var/opt/gitlab
+       - /srv/gitlab/logs:/var/log/gitlab
+       - /srv/gitlab/config:/etc/gitlab
+     environment:
+       GITLAB_OMNIBUS_CONFIG: "from_file('/omnibus_config.rb')"
+     configs:
+       - source: gitlab
+         target: /omnibus_config.rb
+     secrets:
+       - gitlab_root_password
+   gitlab-runner:
+     image: gitlab/gitlab-runner:alpine
+     deploy:
+       mode: replicated
+       replicas: 4
+ configs:
+   gitlab:
+     file: ./gitlab.rb
+ secrets:
+   gitlab_root_password:
+     file: ./root_password.txt
+     
